@@ -1,4 +1,4 @@
-FROM node:20
+FROM public.ecr.aws/lambda/nodejs:18
 
 # System compilers/runtimes
 RUN apt-get update && apt-get install -y \
@@ -46,5 +46,5 @@ COPY . .
 RUN npx tsc --init --rootDir ./ --outDir ./dist --esModuleInterop --resolveJsonModule --lib es2020,dom \
  && sed -i 's|"strict": true,|"strict": true,\n    "types": ["node"],|' tsconfig.json
 
-EXPOSE 5100
+
 CMD [ "lambda.handler" ]
