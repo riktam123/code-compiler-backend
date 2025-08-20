@@ -47,4 +47,4 @@ RUN npx tsc --init --rootDir ./ --outDir ./dist --esModuleInterop --resolveJsonM
  && sed -i 's|"strict": true,|"strict": true,\n    "types": ["node"],|' tsconfig.json
 
 EXPOSE 5100
-CMD ["npm", "start"]
+CMD [ "lambda.handler" ]
