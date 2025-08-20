@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+.env
+.vscode
+src/codes/
+src/outputs/
+src/audio-files-upload/
+# dotenv environment variables file
+
+package-lock.json
+.DS_Store
+
+logs
+logs/*
+
+remote-deploy.sh
+remote-deploy-with-env.sh
