@@ -136,9 +136,11 @@ const codeCompile = async (event) => {
 	try {
 		const { code, language, input } = event;
 		if (typeof code !== "string" || code.trim().length === 0)
-			return { error: "Invalid or empty code provided" };
-		if (language && typeof language !== "string") return { error: "Language must be a string" };
-		if (input && typeof input !== "string") return { error: "Input must be a string" };
+			return { status: false, errorType: "validation", message: "Invalid or empty code provided" };
+		if (language && typeof language !== "string")
+			return { status: false, errorType: "validation", message: "Language must be a string" };
+		if (input && typeof input !== "string")
+			return { status: false, errorType: "validation", message: "Input must be a string" };
 
 		console.log("\nprocessing for ", language);
 		const totalMemMB = os.totalmem() / 1024 / 1024;
@@ -270,7 +272,7 @@ const codeCompile = async (event) => {
 			try {
 				fs.rmSync(tempDir, { recursive: true, force: true });
 			} catch (e) {}
-			return { error: `Unsupported language: ${language}` };
+			return { status: false, errorType: "validation", message: `Unsupported language: ${language}` };
 		}
 		try {
 			if (compileStep) {
@@ -294,13 +296,13 @@ const codeCompile = async (event) => {
 			try {
 				fs.rmSync(tempDir, { recursive: true, force: true });
 			} catch (e) {}
-			return { output };
+			return { status: true, output };
 		} catch (err) {
 			fs.rmSync(tempDir, { recursive: true, force: true });
-			return { errorType: err.type, output: err.output };
+			return { status: false, errorType: err.type, message: err.output };
 		}
 	} catch (e) {
-		return { errorType: "ServerError", output: e.message };
+		return { status: false, errorType: "ServerError", message: e.message };
 	}
 };
 
