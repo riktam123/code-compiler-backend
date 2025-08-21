@@ -1,5 +1,5 @@
-# Base Lambda Node.js image
-FROM public.ecr.aws/lambda/nodejs:18
+# Force x86_64 platform for Lambda compatibility
+FROM --platform=linux/amd64 public.ecr.aws/lambda/nodejs:18
 
 # Install system compilers/runtimes and dependencies
 RUN yum update -y && yum install -y \
@@ -46,11 +46,9 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 # Set working directory for Lambda
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-# Copy package.json and package-lock.json
+# Copy Node.js dependencies and install
 COPY package*.json ./
-
-# Install Node.js dependencies
-RUN npm install
+RUN npm install --production
 
 # Copy source code
 COPY . .
@@ -59,5 +57,5 @@ COPY . .
 RUN chmod -R +x /usr/bin/go /usr/bin/gcc /usr/bin/g++ \
     /root/.cargo/bin/rustc /usr/bin/dotnet
 
-# Set Lambda handler
+# Lambda handler (make sure your file exports 'handler')
 CMD ["lambda.handler"]
