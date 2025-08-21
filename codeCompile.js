@@ -4,8 +4,8 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const os = require("os");
 
-const RUN_TIMEOUT_MS = 8000;
-const COMPILE_TIMEOUT_MS = 15000;
+const RUN_TIMEOUT_MS = 60000;
+const COMPILE_TIMEOUT_MS = 60000;
 const MEMORY_LIMIT_KB = 256 * 1024;
 const MAX_OUTPUT_LENGTH = 512 * 1024;
 
@@ -150,7 +150,7 @@ const codeCompile = async (event) => {
 
 		const lang = (language || "javascript").toLowerCase();
 		const id = uuidv4();
-		const tempDir = path.join(__dirname, "run", id);
+		const tempDir = path.join("/tmp", id);
 		fs.mkdirSync(tempDir, { recursive: true });
 		const inputPath = path.join(tempDir, "input.txt");
 		fs.writeFileSync(inputPath, input || "");

@@ -1,4 +1,4 @@
-const { codeCompile } = require("./lambdas/codeCompile");
+const { codeCompile } = require("./codeCompile");
 
 exports.handler = async (event) => {
     try {

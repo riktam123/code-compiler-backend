@@ -1,50 +1,63 @@
+# Base Lambda Node.js image
 FROM public.ecr.aws/lambda/nodejs:18
 
-# System compilers/runtimes
-RUN yum update && yum install -y \
-    build-essential \
+# Install system compilers/runtimes and dependencies
+RUN yum update -y && yum install -y \
+    gcc \
+    gcc-c++ \
     clang \
-    openjdk-17-jdk \
-    golang-go \
-    php \
+    java-17-amazon-corretto \
+    golang \
+    php-cli \
     python3 \
-    ruby-full \
+    ruby \
     curl \
     wget \
     ca-certificates \
-    apt-transport-https \
-    kotlin \
-    && rm -rf /var/lib/apt/lists/*
+    unzip \
+    zip \
+    tar \
+    xz \
+    gzip \
+    openssl \
+    compat-openssl10 \
+    && yum clean all
 
-# Rust
+# Install Rust
 RUN curl -fsSL https://sh.rustup.rs -o /tmp/rust.sh \
  && sh /tmp/rust.sh -y \
  && rm /tmp/rust.sh
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# .NET SDK (C#)
+# Install .NET SDK (C#)
 RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /usr/local/bin/dotnet-install.sh \
  && chmod +x /usr/local/bin/dotnet-install.sh \
  && /usr/local/bin/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
- && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
- && dotnet --info
+ && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
-# App setup
-WORKDIR /app
+# Set environment variables for Lambda-friendly builds
+ENV TMPDIR=/tmp
+ENV HOME=/tmp
+ENV DOTNET_CLI_HOME=/tmp
+ENV GOCACHE=/tmp/go-cache
+ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Copy package.json
+# Set working directory for Lambda
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies + devDependencies
-RUN npm install --include=dev \
- && npm install --save-dev typescript @types/node ts-node
+# Install Node.js dependencies
+RUN npm install
 
 # Copy source code
 COPY . .
 
-# Add a default tsconfig.json (so Node types are recognized)
-RUN npx tsc --init --rootDir ./ --outDir ./dist --esModuleInterop --resolveJsonModule --lib es2020,dom \
- && sed -i 's|"strict": true,|"strict": true,\n    "types": ["node"],|' tsconfig.json
+# Optional: ensure compilers are executable (only existing binaries)
+RUN chmod -R +x /usr/bin/go /usr/bin/gcc /usr/bin/g++ \
+    /root/.cargo/bin/rustc /usr/bin/dotnet
 
-
-CMD [ "lambda.handler" ]
+# Set Lambda handler
+CMD ["lambda.handler"]
