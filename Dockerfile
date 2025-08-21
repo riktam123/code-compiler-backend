@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/nodejs:18
 
 # System compilers/runtimes
-RUN apt-get update && apt-get install -y \
+RUN yum update && yum install -y \
     build-essential \
     clang \
     openjdk-17-jdk \
