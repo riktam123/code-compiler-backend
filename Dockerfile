@@ -53,9 +53,10 @@ RUN npm install --production
 # Copy source code
 COPY . .
 
-# Optional: ensure compilers are executable (only existing binaries)
+# Optional: ensure compilers are executable for the Lambda user
 RUN chmod -R +x /usr/bin/go /usr/bin/gcc /usr/bin/g++ \
-    /root/.cargo/bin/rustc /usr/bin/dotnet
+    /root/.cargo/bin/rustc /usr/bin/dotnet \
+    /usr/lib/jvm/java-17-amazon-corretto/bin/
 
 # Lambda handler (make sure your file exports 'handler')
 CMD ["lambda.handler"]
